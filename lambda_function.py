@@ -13,8 +13,8 @@ from ask_sdk_core.handler_input import HandlerInput
 
 from ask_sdk_model.ui import SimpleCard
 from ask_sdk_model import Response
-import modi_di_dire
-from modi_di_dire import data
+import idioms_data
+from idioms_data import data
 
 
 SKILL_NAME = "Idiomi Inglesi"
@@ -61,7 +61,7 @@ class IdiomaHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         logger.info("In IdiomaHandler")
 
-        random_fact = random.choice(modi_di_dire.data)
+        random_fact = random.choice(idioms_data.data)
         idiom = random_fact["Idioma"]
         meaning = random_fact["Significato"]
         example = random_fact["Esempio"]
