@@ -3,6 +3,7 @@
 
 import random
 import logging
+import json
 
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import (
@@ -13,8 +14,13 @@ from ask_sdk_core.handler_input import HandlerInput
 
 from ask_sdk_model.ui import SimpleCard
 from ask_sdk_model import Response
-import idioms_data
-from idioms_data import data
+import modi_di_dire
+from modi_di_dire import data
+import backgrounds
+from backgrounds import data
+from ask_sdk_model.interfaces.alexa.presentation.apl import (
+    RenderDocumentDirective, ExecuteCommandsDirective, SpeakItemCommand,
+    AutoPageCommand, HighlightMode)
 
 
 SKILL_NAME = "Idiomi Inglesi"
@@ -31,6 +37,22 @@ sb = SkillBuilder()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+# check if device supports apl
+
+
+def _supports_apl(handler_input):
+    # type: (HandlerInput) -> bool
+    device = handler_input.request_envelope.context.system.device
+    apl_interface = device.supported_interfaces.alexa_presentation_apl
+    return bool(apl_interface)
+
+
+def _load_apl_document(file_path):
+    # type: (str) -> Dict[str, Any]
+    """Load the apl json document at the path into a dict object."""
+    with open(file_path) as f:
+        return json.load(f)
+
 
 # Built-in Intent Handlers
 class LaunchRequestHandler(AbstractRequestHandler):
@@ -44,9 +66,18 @@ class LaunchRequestHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         speech_text = "Benvenuto in Idiomi Inglesi. Puoi chiedermi: dimmi un modo di dire inglese."
 
-        handler_input.response_builder.speak(speech_text).set_card(
-            SimpleCard(speech_text)).set_should_end_session(
-            False)
+        # handler_input.response_builder.speak(speech_text).set_card(
+        #     SimpleCard(speech_text)).set_should_end_session(
+        #     False)
+        # return handler_input.response_builder.response
+
+        if _supports_apl(handler_input):  # check if APL is supported on device
+            handler_input.response_builder.speak(speech_text).add_directive(RenderDocumentDirective(
+                token="idiomiToken", document=_load_apl_document("apl-welcome.json"))).set_should_end_session(False)
+        else:
+            handler_input.response_builder.speak(speech_text).set_card(
+                SimpleCard(speech_text)).set_should_end_session(False)
+
         return handler_input.response_builder.response
 
 
@@ -61,15 +92,43 @@ class IdiomaHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         logger.info("In IdiomaHandler")
 
-        random_fact = random.choice(idioms_data.data)
+        random_fact = random.choice(modi_di_dire.data)
         idiom = random_fact["Idioma"]
         meaning = random_fact["Significato"]
         example = random_fact["Esempio"]
 
-        speech = GET_FACT_MESSAGE + ("<voice name='Emma'><lang xml:lang='en-GB'>{}</lang></voice>. Significa: {}. Ecco un esempio: <voice name='Emma'><lang xml:lang='en-GB'>{}</lang></voice>".format(idiom, meaning, example))
+        random_background = random.choice(backgrounds.data)
+        image = random_background["img"]
 
-        handler_input.response_builder.speak(speech).set_card(SimpleCard(SKILL_NAME, idiom + "\n" + example)).set_should_end_session(
-            True)
+        speech = GET_FACT_MESSAGE + \
+            ("<voice name='Emma'><lang xml:lang='en-GB'>{}</lang></voice>. Significa: {}. Ecco un esempio: <voice name='Emma'><lang xml:lang='en-GB'>{}</lang></voice>".format(idiom, meaning, example))
+
+        # handler_input.response_builder.speak(speech).set_card(SimpleCard(SKILL_NAME, idiom + "\n" + example)).set_should_end_session(
+        #     True)
+        # return handler_input.response_builder.response
+
+        if _supports_apl(handler_input):  # check if APL is supported on device
+            handler_input.response_builder.speak(speech).add_directive(
+                RenderDocumentDirective(
+                    token="idiomiToken",
+                    document=_load_apl_document("apl-idioma.json"),
+                    datasources={
+                        'idiomaTemplateData': {
+                            'type': 'object',
+                            'properties': {
+                                'text': "{}".format(idiom)
+                            }
+                        },
+                        'backgroundsData': {
+                            'image': "{}".format(image)
+                        }
+
+                    }
+                )).set_should_end_session(True)
+        else:
+            handler_input.response_builder.speak(speech).set_card(SimpleCard(SKILL_NAME, idiom + "\n" + meaning)).set_should_end_session(
+                True)
+
         return handler_input.response_builder.response
 
 
@@ -108,7 +167,6 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
 
 class FallbackIntentHandler(AbstractRequestHandler):
     """Handler for Fallback Intent.
-
     AMAZON.FallbackIntent is only available in en-US locale.
     This handler will not be triggered except in that locale,
     so it is safe to deploy on any locale.

@@ -1,0 +1,88 @@
+{
+  "type": "APL",
+  "version": "1.1",
+  "settings": {},
+  "theme": "dark",
+  "import": [
+    {
+      "name": "alexa-layouts",
+      "version": "1.0.0"
+    }
+  ],
+  "resources": [
+    {
+      "description": "Common margins and padding",
+      "dimensions": {
+        "marginLeft": 60,
+        "marginRight": 60
+      }
+    }
+  ],
+  "styles": {},
+  "onMount": [],
+  "graphics": {},
+  "commands": {},
+  "layouts": {},
+  "mainTemplate": {
+    "parameters": ["payload"],
+    "items": [
+      {
+        "type": "Container",
+        "height": "100vh",
+        "items": [
+          {
+            "type": "Image",
+            "width": "100vw",
+            "height": "100vh",
+            "source": "https://i.imgur.com/ADlYRXc.png",
+            "scale": "best-fill",
+            "position": "absolute"
+          },
+          {
+            "type": "Container",
+            "justifyContent": "center",
+            "items": [
+              {
+                "type": "Text",
+                "style": "textStyleBody",
+                "paddingLeft": "@marginLeft",
+                "paddingRight": "@marginRight",
+                "textAlign": "center",
+                "text": "Welcome! Benvenuto!",
+                "fontWeight": "400",
+                "letterSpacing": "4",
+                "lineHeight": "2",
+                "color": "#ffffff"
+              },
+              {
+                "type": "Text",
+                "style": "textStyleBody",
+                "paddingLeft": "@marginLeft",
+                "paddingRight": "@marginRight",
+                "textAlign": "center",
+                "fontStyle": "italic",
+                "text": "\"Dimmi un modo di dire\"",
+                "fontWeight": "normal",
+                "letterSpacing": "0",
+                "color": "#ffffff"
+              },
+              {
+                "type": "Text",
+                "style": "textStyleBody",
+                "paddingLeft": "@marginLeft",
+                "paddingRight": "@marginRight",
+                "textAlign": "center",
+                "fontStyle": "italic",
+                "text": "\"Dimmi un idioma\"",
+                "fontWeight": "normal",
+                "letterSpacing": "0",
+                "color": "#ffffff"
+              }
+            ],
+            "grow": 1
+          }
+        ]
+      }
+    ]
+  }
+}
