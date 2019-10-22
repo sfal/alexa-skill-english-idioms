@@ -20,6 +20,28 @@
         speech = GET_FACT_MESSAGE + ("<voice name='Emma'><lang xml:lang='en-GB'>{}</lang></voice>. Significa: {}. Ecco un esempio: <voice name='Emma'><lang xml:lang='en-GB'>{}</lang></voice>".format(idiom, meaning, example))
 ```
 
+## Now supports Alexa Presentation Language
+(thanks to <a href="https://github.com/cspollar">@cspollar</a>, their <a href="https://github.com/alexa-labs/skill-sample-python-pager-karaoke/pull/3">PR</a> helped me figure out how to check for APL support in Python)
+
+```handler_input.response_builder.speak(speech).add_directive(
+     RenderDocumentDirective(
+        token="idiomiToken",
+        document=_load_apl_document("apl-idioma.json"),
+        datasources={
+                'idiomaTemplateData': {
+                        'type': 'object',
+                        'properties': {
+                             'text': "{}".format(idiom)
+                         }
+                },
+                 'backgroundsData': {
+                 'image': "{}".format(image)
+                  }
+                }
+            ))
+```
+
+
 ---
 
 ## Enable Skill (Italy only)
